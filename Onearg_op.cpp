@@ -26,6 +26,7 @@ void Onearg_op::print(){
         case STRONG: std::cout << "!\n(\n)"; break;
     }
     arg->print();
+    std::cout << ")";
 }
 
 
