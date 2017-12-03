@@ -9,7 +9,8 @@ Onearg_op::Onearg_op(std::string& type_indicator, std::string& argument){
     else if(type_indicator == "ln") type = LN;
     else if(type_indicator == "log") type = LOG;
     else if(type_indicator == "!") type = STRONG;
-    arg = new Expression(argument);
+    Expression* temp = new Expression(argument);
+    arg = temp->parse();
 }
 
 Onearg_op::~Onearg_op(){
