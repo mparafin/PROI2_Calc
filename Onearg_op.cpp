@@ -44,8 +44,9 @@ double Onearg_op::calculate(){
                 return 0;
             }
             else{
-                for(int i=1; i<k; i++) k *= i;
-                return k;
+                int n=1;
+                for(int i=1; i<k; i++) n *= i;
+                return n;
             }
             break;
     }
