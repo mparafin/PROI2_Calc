@@ -3,12 +3,12 @@
 #include <iostream>
 #include <cmath>
 
-Onearg_op::Onearg_op(std::string& indicator, std::string& argument){
-    if(indicator == "-") type = MINUS;
-    else if(indicator == "exp") type = EXP;
-    else if(indicator == "ln") type = LN;
-    else if(indicator == "log") type = LOG;
-    else if(indicator == "!") type = STRONG;
+Onearg_op::Onearg_op(std::string& type_indicator, std::string& argument){
+    if(type_indicator == "-") type = MINUS;
+    else if(type_indicator == "exp") type = EXP;
+    else if(type_indicator == "ln") type = LN;
+    else if(type_indicator == "log") type = LOG;
+    else if(type_indicator == "!") type = STRONG;
     arg = new Expression(argument);
 }
 
