@@ -1,7 +1,10 @@
 #include <iostream>
+#include "Calculator.hpp"
+#include "Expression.hpp"
 
 int main(){
-    int a, b;
+    Calculator mainCalc;
+    mainCalc.print();
     std::cout << "Yay!" << std::endl;
     return 0;
 }

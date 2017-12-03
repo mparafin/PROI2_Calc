@@ -4,7 +4,7 @@
 
 using namespace std;
 
-Expression::Expression(string& input): value(input){};
+Expression::Expression(string input): value(input){};
 
 void Expression::print(){
     cout << value << endl;
