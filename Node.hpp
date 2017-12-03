@@ -3,8 +3,8 @@
 
 class Node{
     public:
-        void print() = 0;
-        double calculate() = 0;
-}
+        virtual void print() = 0;
+        virtual double calculate() = 0;
+};
 
 #endif
