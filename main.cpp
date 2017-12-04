@@ -10,10 +10,8 @@ int main(){
     cout << "Podaj input:\n";
     string buffer;
     cin >> buffer;
+    cout << buffer << endl;
     Expression testExpression(buffer);
-    testExpression.print();
-    testExpression.dropBrackets();
-    cout << "After testExpression.dropBrackets(): ";
     testExpression.print();
     //cout << testExpression.print() << endl;
     return 0;

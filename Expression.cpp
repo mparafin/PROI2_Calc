@@ -63,15 +63,11 @@ int Expression::dropBrackets() { //opuść skrajne nawiasy, jeśli są
     {
         int bracketDepth = 1;
         string::iterator i = this->value.begin()+1;
-        cout << "rozpoznał pierwszy nawias\n";
         while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
             if( *i == '(' ) bracketDepth++;
             if( *i == ')' ) bracketDepth--;
             i++;
         }
-        cout << "czy rozpoznał ostatni nawias:" << (i-1 == value.end()-1) << endl;
-        cout << "i: " << *(i-1) << endl;
-        cout << "value.end()-1: " << *(value.end()-1) << endl;
         if(i-1 == value.end()-1) { //jeżeli zamknięcie pierwszego to ostatni znak, usuń skrajne znaki
             value.erase( value.begin() );
             value.erase( value.end()-1 );
