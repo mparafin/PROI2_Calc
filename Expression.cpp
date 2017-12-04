@@ -27,7 +27,7 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
         emptyRuns = 0;
         for(int i=0; i < definedVariables.size(); i++) {
             size_t position = value.find(definedVariables[i].name); //position = początek nazwy zmiennej
-            if(position != string::npos) value.replace( position, position + definedVariables[i].name.size(), definedVariables[i].definition.value); //podmień nazwę na definicję
+            if(position != string::npos) value.replace( position, position + definedVariables[i].name.length(), definedVariables[i].definition.value); //podmień nazwę na definicję
             else emptyRuns++;
         }
     }
