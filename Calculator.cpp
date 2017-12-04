@@ -2,11 +2,25 @@
 #include "Node.hpp"
 #include "Expression.hpp"
 #include <iostream>
+#include <vector>
 
 using namespace std;
 
-void Calculator::defineVariable(string& input_name, string& input_definition){
+void Calculator::defineVariable(string input_name, string input_definition){
     defined_variables.push_back(Variable(input_name, input_definition));
+}
+
+bool Calculator::checkVariable(string input){ 
+    for(int i=0; i<defined_variables.size(); i++){
+        if(defined_variables[i].name == input) return 1; //zwraca 1, jeśli zmienna jest już zdefiniowana
+    }
+    return 0; //zwraca 0, jeśli zmienna nie jest zdefiniowana
+}
+
+string Calculator::getVariableDefinition(string key){ //zwraca definicję zmiennej w postaci stringa
+    for(int i=0; i<defined_variables.size(); i++){
+        if(defined_variables[i].name == key) return defined_variables[i].definition.getValue();
+    }
 }
 
 void Calculator::memoryClear(){ defined_variables.clear(); }
