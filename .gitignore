@@ -5,3 +5,4 @@ Calc
 .vscode/c_cpp_properties.json
 makefile
 .vscode/settings.json
+*.o
