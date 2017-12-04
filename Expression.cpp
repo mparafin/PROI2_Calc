@@ -15,14 +15,24 @@ string Expression::getValue(){ return value; }
 
 double Expression::calculate(){}
 
-int Expression::devariablize(Calculator calc){ //podmienienie zmiennych na wyrażenia
+int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyrażenia
     /* Funkcja podmienia zmienne danego kalkulatora znajdujące się w wyrażeniu na ich definicje, dopóki nie znajdzie już żadnej zdefiniowanej zmiennej.
     *Funkcja zwraca 0 jeśli operacja zakończyła się powodzeniem.
     *
     */
 
-    vector<Variable> definedVariables = calc.getDefinedVariables();
+    vector<Variable> definedVariables = calc->getDefinedVariables();
+    int emptyRuns = 0;
+    while(emptyRuns != definedVariables.size() ){ //próbuj podmienić wszystkie zmienne tyle razy, aż żadna nie zostanie znaleziona
+        emptyRuns = 0;
+        for(int i=0; i < definedVariables.size(); i++) {
+            size_t position = value.find(definedVariables[i].name); //position = początek nazwy zmiennej
+            if(position != string::npos) value.replace( position, position + definedVariables[i].name.size(), definedVariables[i].definition.value); //podmień nazwę na definicję
+            else emptyRuns++;
+        }
+    }
     
+    //w tym momencie mamy podmienione wszystkie zmienne, jakie są zdefiniowane
 
     size_t found = value.find_first_not_of("123456789 +-*/^!()"); //znalezienie pierwszego znaku który nie jest liczbą lub operatorem matematycznym
     if(value[found] == string::npos) return 0; //sukces jeśli brak zmiennych na samym początku
@@ -43,23 +53,33 @@ int Expression::devariablize(Calculator calc){ //podmienienie zmiennych na wyra�
         break;
     }
     if(value[found] == string::npos) return 0; //sukces jeśli brak zmiennych po uwzględnieniu funkcji
-
-    size_t start = found;
-    found = value.find_first_not_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_1234567890");
-    string found_name = value.substr(start, found-start);
-
-    
+    else return 1;    
 }
 
-Node* Expression::parse(Calculator calc){
+int Expression::dropBrackets() { //opuść skrajne nawiasy, jeśli są
+    
+    if(*(this->value.begin()) != '(' ) return 0; //sukces, jeżeli nie zaczyna się od nawiasu
+    else
+    {
+        int bracketDepth = 1;
+        string::iterator i = value.begin()+1;
+        while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+            if( *i == '(' ) bracketDepth++;
+            if( *i == ')' ) bracketDepth--;
+            i++;
+        }
+        if(i == value.end()-1 ) value = value.substr(1, value.size()-2 ); //jeżeli zamknięcie pierwszego to ostatni znak, usuń skrajne znaki
+        return 0;
+    }
+}
 
-    devariablize(calc);
+Node* Expression::parse(Calculator *calc){
+
+    if(devariablize(calc) == 1 ) {
+        cout << "Syntax error!" << endl;
+        return NULL;
+    }
+    
     dropBrackets();
 
-    if(*(this->value.begin()) == '(' ){
-        int bracketCounter = 0;
-        for(string::iterator it=value.begin(); it != value.end(); it++){
-
-        }
-    }
 }
