@@ -37,7 +37,7 @@ void Calculator::calculate(){
     Node* temp = NULL;
     for(int i=0; i < defined_variables.size(); i++){
         cout << defined_variables[i].name << " = ";
-        temp = defined_variables[i].definition.parse();
+        temp = defined_variables[i].definition.parse(*this);
         cout << temp->calculate() << endl;
     }
 }

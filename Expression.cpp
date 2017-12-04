@@ -63,3 +63,7 @@ Node* Expression::parse(Calculator calc){
         }
     }
 }
+
+int Expression::dropBrackets() {
+    return 1;  //TODO implement
+}

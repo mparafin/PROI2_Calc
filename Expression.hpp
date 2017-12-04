@@ -3,7 +3,8 @@
 
 #include <string>
 #include "Node.hpp"
-#include "Calculator.hpp"
+
+struct Calculator;
 
 class Expression: public Node{
     private:
