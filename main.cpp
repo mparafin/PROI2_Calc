@@ -10,14 +10,12 @@ int main(){
     cout << "Podaj input:\n";
     string buffer, key, value;
     getline(cin, buffer);
-    cout << buffer << endl;
     mainCalc.defineVariable("a", "10");
-    value = mainCalc.getVariableDefinition("a");
-    cout << "value: " << value << endl;
+    mainCalc.defineVariable("b", "a+5");
     Expression testExpression(buffer);
-    testExpression.dropBrackets();
+    if (testExpression.devariablize(&mainCalc) == 1) cout << "Syntax error - undefined variable\n";
     testExpression.print();
-    testExpression.devariablize(&mainCalc);
+    testExpression.dropBrackets();
     testExpression.print();
     return 0;
 }

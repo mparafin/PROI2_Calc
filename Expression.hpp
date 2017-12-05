@@ -17,7 +17,7 @@ class Expression: public Node{
         Node* parse(Calculator*); //interpretuje string value i tworzy poddrzewo tego wyrażenia
 
         int devariablize(Calculator*); //podmienia zmienne na wyrażenia, które je opisują
-        int dropBrackets(); //usuwa skrajne nawiasy, jeżeli całe wyrażenie jest w nawiasie
+        void dropBrackets(); //usuwa skrajne nawiasy, jeżeli całe wyrażenie jest w nawiasie
 };
 
 #endif

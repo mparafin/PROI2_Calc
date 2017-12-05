@@ -20,49 +20,48 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
     *Funkcja zwraca 0 jeśli operacja zakończyła się powodzeniem.
     *
     */
-
     vector<Variable> definedVariables = calc->getDefinedVariables();
     int emptyRuns = 0;
     while(emptyRuns != definedVariables.size() ){ //próbuj podmienić wszystkie zmienne tyle razy, aż żadna nie zostanie znaleziona
         emptyRuns = 0;
         for(int i=0; i < definedVariables.size(); i++) {
             size_t position = value.find(definedVariables[i].name); //position = początek nazwy zmiennej
-            if(position != string::npos) value.replace( position, position + definedVariables[i].name.length(), definedVariables[i].definition.value); //podmień nazwę na definicję
+            if(position != string::npos) value.replace( position, definedVariables[i].name.length(), "(" + definedVariables[i].definition.value + ")"); //podmień nazwę na definicję
             else emptyRuns++;
         }
     }
-    
+   
     //w tym momencie mamy podmienione wszystkie zmienne, jakie są zdefiniowane
 
-    size_t found = value.find_first_not_of("123456789 +-*/^!()"); //znalezienie pierwszego znaku który nie jest liczbą lub operatorem matematycznym
-    if(value[found] == string::npos) return 0; //sukces jeśli brak zmiennych na samym początku
+    size_t found = value.find_first_not_of("1234567890 +-*^/!()"); //znalezienie pierwszego znaku który nie jest liczbą lub operatorem matematycznym
+    if(found == string::npos) return 0; //sukces jeśli brak zmiennych na samym początku
 
     while(1){ //pętla testująca czy znaleziony znak nie jest funkcją jednoargumentową (exp, ln, log)
         if(value[found] == 'e' && value[found+1] == 'x' && value[found+2] == 'p' && value[found+3] == '(') {
-            found = value.find_first_not_of("123456789 +-*/^!()", found+3);
+            found = value.find_first_not_of("1234567890 +-*^/!()", found+3);
             continue;
         }
         if(value[found] == 'l' && value[found+1] == 'n' && value[found+2] == '('){
-            found = value.find_first_not_of("123456789 +-*/^!()", found+2);
+            found = value.find_first_not_of("1234567890 +-*^/!()", found+2);
             continue;
         }
         if(value[found] == 'l' && value[found+1] == 'o' && value[found+2] == 'g' && value[found+3] == '('){
-            found = value.find_first_not_of("123456789 +-*/^!()", found+3);
+            found = value.find_first_not_of("123456789 +-*^/!()", found+3);
             continue;
         }
         break;
     }
-    if(value[found] == string::npos) return 0; //sukces jeśli brak zmiennych po uwzględnieniu funkcji
+    if(found == string::npos) return 0; //sukces jeśli brak zmiennych po uwzględnieniu funkcji
     else return 1;    
 }
 
-int Expression::dropBrackets() { //opuść skrajne nawiasy, jeśli są
+void Expression::dropBrackets() { //opuść skrajne nawiasy, jeśli są
     
-    if(*(this->value.begin()) != '(' ) return 0; //sukces, jeżeli nie zaczyna się od nawiasu
+    if(*(value.begin()) != '(' ) return; //sukces, jeżeli nie zaczyna się od nawiasu
     else
     {
         int bracketDepth = 1;
-        string::iterator i = this->value.begin()+1;
+        string::iterator i = value.begin()+1;
         while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
             if( *i == '(' ) bracketDepth++;
             if( *i == ')' ) bracketDepth--;
@@ -71,8 +70,9 @@ int Expression::dropBrackets() { //opuść skrajne nawiasy, jeśli są
         if(i-1 == value.end()-1) { //jeżeli zamknięcie pierwszego to ostatni znak, usuń skrajne znaki
             value.erase( value.begin() );
             value.erase( value.end()-1 );
-        } 
-        return 0;
+            dropBrackets(); //na wypadek gdyby ((...))
+        }
+        else return;
     }
 }
 
