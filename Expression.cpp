@@ -2,8 +2,10 @@
 #include "Calculator.hpp"
 #include "Onearg_op.hpp"
 #include "Twoarg_op.hpp"
+#include "Argument.hpp"
 #include <string>
 #include <iostream>
+#include <stdlib.h>
 
 using namespace std;
 
@@ -97,7 +99,34 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
 
     int head = 0;
 
-    while( (value[head] != '+' || value[head] != '-') && value[head] != *(value.end()) ) { //szukaj plusa/minusa aż znajdziesz lub skończy się value
+    //szukaj plusa/minusa aż znajdziesz lub skończy się value:
+    while( (value[head] != '+' || value[head] != '-') && value[head] != *(value.end()-1) ) {
+        cout << "value[head]: " << value[head] << ", value.end(): " << *(value.end()) << endl;
+        if(value[head] == '('){ //pominięcie nawiasów
+            int bracketDepth = 1;
+            head++;
+            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+                if( value[head] == '(' ) bracketDepth++;
+                if( value[head] == ')' ) bracketDepth--;
+                head++;
+            }
+        }
+        head++;
+    }
+    head--;
+    if(value[head] == '+' || value[head] == '-'){ //jeżeli znalazł plusa/minusa nie w nawiasie
+        cout << "Znalazł plusa, head = " << head << ", value[head]: " << value[head] << endl;
+        Node* newNode = new Twoarg_op(value.substr(head, head), value.substr( 0, head), value.substr(head+1));
+        cout << "Stworzył new Twoarg_op: " << value.substr(head, head) << ", " << value.substr( 0, head) << ", " << value.substr(head+1) << endl;
+        newNode->print();
+        delete this;
+        cout << "Usunął się\n";
+        newNode->parse(calc);
+        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora plus/minus
+    }
+
+    //szukaj mnożenia/dzielenia aż znajdziesz lub skończy się value:
+    while( (value[head] != '*' || value[head] != '/') && value[head] != *(value.end()) ) {
         if(value[head] == '('){ //pominięcie nawiasów
             int bracketDepth = 1;
             head++;
@@ -108,13 +137,37 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
             }
         }
     }
-    if(value[head] != '+' || value[head] != '-'){ //jeżeli znalazł plusa/minusa nie w nawiasie
+    if(value[head] != '*' || value[head] != '/'){ //jeżeli znalazł mnożenie/dzielenie nie w nawiasie
         Node* newNode = new Twoarg_op(value.substr(head, head+1), value.substr( 0, head), value.substr(head+1));
-        newNode->parse(calc);
         delete this;
-        return newNode;
+        newNode->parse(calc);
+        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora plus/minus
     }
-    
 
 
+    //szukaj potęgowania aż znajdziesz lub skończy się value:
+    while( value[head] != '^' && value[head] != *(value.end()) ) {
+        if(value[head] == '('){ //pominięcie nawiasów
+            int bracketDepth = 1;
+            head++;
+            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+                if( value[head] == '(' ) bracketDepth++;
+                if( value[head] == ')' ) bracketDepth--;
+                head++;
+            }
+        }
+    }
+    if(value[head] != '^'){ //jeżeli znalazł potęgowanie nie w nawiasie
+        Node* newNode = new Twoarg_op(value.substr(head, head+1), value.substr( 0, head), value.substr(head+1));
+        delete this;
+        newNode->parse(calc);
+        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora plus/minus
+    }
+
+
+
+    //if all else fails - stwórz z siebie Argument
+    Node* newNode = new Argument( atof( value.c_str() ));
+    delete this;
+    return newNode;
 }

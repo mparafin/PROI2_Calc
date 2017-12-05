@@ -13,9 +13,8 @@ int main(){
     mainCalc.defineVariable("a", "10");
     mainCalc.defineVariable("b", "a+5");
     Expression testExpression(buffer);
-    if (testExpression.devariablize(&mainCalc) == 1) cout << "Syntax error - undefined variable\n";
-    testExpression.print();
-    testExpression.dropBorders();
-    testExpression.print();
+    cout << "testExpression.value: " << testExpression.getValue() <<endl;
+    Node* testTree = testExpression.parse(&mainCalc);
+    testTree->print();
     return 0;
 }
