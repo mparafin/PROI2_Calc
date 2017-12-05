@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 
-Twoarg_op::Twoarg_op(string& type_indicator, string& left_arg, string& right_arg){
+Twoarg_op::Twoarg_op(string type_indicator, string left_arg, string right_arg){
     if(type_indicator == "+") type = PLUS;
     else if(type_indicator == "-") type = MINUS;
     else if(type_indicator == "/") type = DIVIDE;
@@ -31,11 +31,16 @@ void Twoarg_op::print(){
     arg_right->print();
 }
 
+Node* Twoarg_op::parse(Calculator* calc){
+    arg_left = arg_left->parse(calc);
+    arg_right = arg_right->parse(calc);
+}
+
 double Twoarg_op::calculate(){
     switch(type){
-        case PLUS: return arg_left->calculate() + arg_right->calculate;
-        case MINUS: return arg_left->calculate() - arg_right->calculate;
-        case MULTIPLY: return arg_left->calculate() * arg_right->calculate;
-        case DIVIDE: return arg_left->calculate() / arg_right->calculate;
+        case PLUS: return arg_left->calculate() + arg_right->calculate();
+        case MINUS: return arg_left->calculate() - arg_right->calculate();
+        case MULTIPLY: return arg_left->calculate() * arg_right->calculate();
+        case DIVIDE: return arg_left->calculate() / arg_right->calculate();
     }
 }

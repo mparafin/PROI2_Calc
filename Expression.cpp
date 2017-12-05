@@ -1,5 +1,7 @@
 #include "Expression.hpp"
 #include "Calculator.hpp"
+#include "Onearg_op.hpp"
+#include "Twoarg_op.hpp"
 #include <string>
 #include <iostream>
 
@@ -55,9 +57,14 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
     else return 1;    
 }
 
-void Expression::dropBrackets() { //opuść skrajne nawiasy, jeśli są
+void Expression::dropBorders() { //opuść skrajne nawiasy i spacje, jeśli są
     
-    if(*(value.begin()) != '(' ) return; //sukces, jeżeli nie zaczyna się od nawiasu
+    //usunięcie skrajnych spacji:
+    if( *(value.begin()) == ' ') { value.erase( value.begin() ); dropBorders(); }
+    if( *(value.end()-1) == ' ') { value.erase( value.end()-1 ); dropBorders(); }
+
+    //usunięcie skrajnych nawiasów:
+    if( *(value.begin()) != '(' ) return; //sukces, jeżeli nie zaczyna się od nawiasu
     else
     {
         int bracketDepth = 1;
@@ -70,19 +77,44 @@ void Expression::dropBrackets() { //opuść skrajne nawiasy, jeśli są
         if(i-1 == value.end()-1) { //jeżeli zamknięcie pierwszego to ostatni znak, usuń skrajne znaki
             value.erase( value.begin() );
             value.erase( value.end()-1 );
-            dropBrackets(); //na wypadek gdyby ((...))
+            dropBorders(); //na wypadek gdyby był przypadek "((...))"
         }
         else return;
     }
 }
 
-Node* Expression::parse(Calculator *calc){
+Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
 
-    if(devariablize(calc) == 1 ) {
+    //Przygotowanie stringa
+
+    if(devariablize(calc) == 1 ) { //podstawienie wyrażeń za zmienne
         cout << "Syntax error!" << endl;
         return NULL;
     }
+    dropBorders(); // usunięcie skrajnych nawiasów i spacji
+
+    //W tym momencie mamy czyste wyrażenie do parsowania
+
+    int head = 0;
+
+    while( (value[head] != '+' || value[head] != '-') && value[head] != *(value.end()) ) { //szukaj plusa/minusa aż znajdziesz lub skończy się value
+        if(value[head] == '('){ //pominięcie nawiasów
+            int bracketDepth = 1;
+            head++;
+            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+                if( value[head] == '(' ) bracketDepth++;
+                if( value[head] == ')' ) bracketDepth--;
+                head++;
+            }
+        }
+    }
+    if(value[head] != '+' || value[head] != '-'){ //jeżeli znalazł plusa/minusa nie w nawiasie
+        Node* newNode = new Twoarg_op(value.substr(head, head+1), value.substr( 0, head), value.substr(head+1));
+        newNode->parse(calc);
+        delete this;
+        return newNode;
+    }
     
-    dropBrackets();
+
 
 }

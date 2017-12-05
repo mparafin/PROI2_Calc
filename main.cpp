@@ -15,7 +15,7 @@ int main(){
     Expression testExpression(buffer);
     if (testExpression.devariablize(&mainCalc) == 1) cout << "Syntax error - undefined variable\n";
     testExpression.print();
-    testExpression.dropBrackets();
+    testExpression.dropBorders();
     testExpression.print();
     return 0;
 }
