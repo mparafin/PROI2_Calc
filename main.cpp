@@ -13,8 +13,8 @@ int main(){
     mainCalc.defineVariable("a", "10");
     mainCalc.defineVariable("b", "a+5");
     Expression testExpression(buffer);
-    cout << "testExpression.value: " << testExpression.getValue() <<endl;
     Node* testTree = testExpression.parse(&mainCalc);
-    testTree->print();
+    //testTree->print();
+    cout << "Wynik: " << testTree->calculate() << endl;
     return 0;
 }

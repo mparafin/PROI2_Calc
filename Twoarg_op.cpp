@@ -1,6 +1,7 @@
 #include "Twoarg_op.hpp"
 #include "Expression.hpp"
 #include <iostream>
+#include <math.h>
 using namespace std;
 
 Twoarg_op::Twoarg_op(string type_indicator, string left_arg, string right_arg){
@@ -24,16 +25,22 @@ void Twoarg_op::print(){
     arg_left->print();
     switch(type){
         case PLUS: cout << "+\n"; break;
-        case MINUS: cout << "-\n;"; break;
+        case MINUS: cout << "-\n"; break;
         case MULTIPLY: cout << "*\n"; break;
         case DIVIDE: cout << "/\n"; break;
+        case POWER: cout << "^\n"; break;
     }
     arg_right->print();
 }
 
 Node* Twoarg_op::parse(Calculator* calc){
-    arg_left = arg_left->parse(calc);
-    arg_right = arg_right->parse(calc);
+    Node* temp = arg_left;
+    arg_left = temp->parse(calc);
+    delete temp;
+    temp = arg_right;
+    arg_right = temp->parse(calc);
+    delete temp;
+    return this;
 }
 
 double Twoarg_op::calculate(){
@@ -42,5 +49,6 @@ double Twoarg_op::calculate(){
         case MINUS: return arg_left->calculate() - arg_right->calculate();
         case MULTIPLY: return arg_left->calculate() * arg_right->calculate();
         case DIVIDE: return arg_left->calculate() / arg_right->calculate();
+        case POWER: return pow( arg_left->calculate() , arg_right->calculate() );
     }
 }

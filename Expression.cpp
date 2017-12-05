@@ -34,23 +34,23 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
             else emptyRuns++;
         }
     }
-   
+  
     //w tym momencie mamy podmienione wszystkie zmienne, jakie są zdefiniowane
 
-    size_t found = value.find_first_not_of("1234567890 +-*^/!()"); //znalezienie pierwszego znaku który nie jest liczbą lub operatorem matematycznym
+    size_t found = value.find_first_not_of("1234567890. +-*^/!()"); //znalezienie pierwszego znaku który nie jest liczbą lub operatorem matematycznym
     if(found == string::npos) return 0; //sukces jeśli brak zmiennych na samym początku
 
     while(1){ //pętla testująca czy znaleziony znak nie jest funkcją jednoargumentową (exp, ln, log)
         if(value[found] == 'e' && value[found+1] == 'x' && value[found+2] == 'p' && value[found+3] == '(') {
-            found = value.find_first_not_of("1234567890 +-*^/!()", found+3);
+            found = value.find_first_not_of("1234567890. +-*^/!()", found+3);
             continue;
         }
         if(value[found] == 'l' && value[found+1] == 'n' && value[found+2] == '('){
-            found = value.find_first_not_of("1234567890 +-*^/!()", found+2);
+            found = value.find_first_not_of("1234567890. +-*^/!()", found+2);
             continue;
         }
         if(value[found] == 'l' && value[found+1] == 'o' && value[found+2] == 'g' && value[found+3] == '('){
-            found = value.find_first_not_of("123456789 +-*^/!()", found+3);
+            found = value.find_first_not_of("123456789. +-*^/!()", found+3);
             continue;
         }
         break;
@@ -59,18 +59,21 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
     else return 1;    
 }
 
-void Expression::dropBorders() { //opuść skrajne nawiasy i spacje, jeśli są
+void Expression::dropBorders() { //opuść skrajne nawiasy i usuń spacje, jeśli są
     
-    //usunięcie skrajnych spacji:
-    if( *(value.begin()) == ' ') { value.erase( value.begin() ); dropBorders(); }
-    if( *(value.end()-1) == ' ') { value.erase( value.end()-1 ); dropBorders(); }
+    //usunięcie spacji:
+    string::iterator i = value.begin();
+    while(i != value.end() ){
+        if(*i == ' ') value.erase(i);
+        i++;
+    }
 
     //usunięcie skrajnych nawiasów:
     if( *(value.begin()) != '(' ) return; //sukces, jeżeli nie zaczyna się od nawiasu
     else
     {
         int bracketDepth = 1;
-        string::iterator i = value.begin()+1;
+         i = value.begin()+1;
         while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
             if( *i == '(' ) bracketDepth++;
             if( *i == ')' ) bracketDepth--;
@@ -88,7 +91,6 @@ void Expression::dropBorders() { //opuść skrajne nawiasy i spacje, jeśli są
 Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
 
     //Przygotowanie stringa
-
     if(devariablize(calc) == 1 ) { //podstawienie wyrażeń za zmienne
         cout << "Syntax error!" << endl;
         return NULL;
@@ -100,8 +102,10 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
     int head = 0;
 
     //szukaj plusa/minusa aż znajdziesz lub skończy się value:
-    while( (value[head] != '+' || value[head] != '-') && value[head] != *(value.end()-1) ) {
-        cout << "value[head]: " << value[head] << ", value.end(): " << *(value.end()) << endl;
+    for (head=0; head < value.size(); head++) {
+
+        if (value[head] == '+' || value[head] == '-') { head++; break;}
+
         if(value[head] == '('){ //pominięcie nawiasów
             int bracketDepth = 1;
             head++;
@@ -110,23 +114,23 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
                 if( value[head] == ')' ) bracketDepth--;
                 head++;
             }
+            head--;
         }
-        head++;
     }
     head--;
+
     if(value[head] == '+' || value[head] == '-'){ //jeżeli znalazł plusa/minusa nie w nawiasie
-        cout << "Znalazł plusa, head = " << head << ", value[head]: " << value[head] << endl;
-        Node* newNode = new Twoarg_op(value.substr(head, head), value.substr( 0, head), value.substr(head+1));
-        cout << "Stworzył new Twoarg_op: " << value.substr(head, head) << ", " << value.substr( 0, head) << ", " << value.substr(head+1) << endl;
-        newNode->print();
-        delete this;
-        cout << "Usunął się\n";
-        newNode->parse(calc);
+
+        Node* newNode = new Twoarg_op(value.substr(head, 1), value.substr( 0, head), value.substr(head+1));
+        newNode = newNode->parse(calc);
         return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora plus/minus
     }
 
     //szukaj mnożenia/dzielenia aż znajdziesz lub skończy się value:
-    while( (value[head] != '*' || value[head] != '/') && value[head] != *(value.end()) ) {
+    for (head=0; head < value.size(); head++) {
+
+        if (value[head] == '*' || value[head] == '/') { head++; break;}
+
         if(value[head] == '('){ //pominięcie nawiasów
             int bracketDepth = 1;
             head++;
@@ -135,18 +139,24 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
                 if( value[head] == ')' ) bracketDepth--;
                 head++;
             }
+            head--;
         }
     }
-    if(value[head] != '*' || value[head] != '/'){ //jeżeli znalazł mnożenie/dzielenie nie w nawiasie
-        Node* newNode = new Twoarg_op(value.substr(head, head+1), value.substr( 0, head), value.substr(head+1));
-        delete this;
-        newNode->parse(calc);
-        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora plus/minus
+    head--;
+
+    if(value[head] == '*' || value[head] == '/'){ //jeżeli znalazł mnożenie/dzielenie nie w nawiasie
+        Node* newNode = new Twoarg_op(value.substr(head, 1), value.substr( 0, head), value.substr(head+1));
+
+        newNode = newNode->parse(calc);
+        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora mnożenia/dzielenia
     }
 
 
     //szukaj potęgowania aż znajdziesz lub skończy się value:
-    while( value[head] != '^' && value[head] != *(value.end()) ) {
+    for (head=0; head < value.size(); head++) {
+
+        if (value[head] == '^') { head++; break;}
+
         if(value[head] == '('){ //pominięcie nawiasów
             int bracketDepth = 1;
             head++;
@@ -155,19 +165,19 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
                 if( value[head] == ')' ) bracketDepth--;
                 head++;
             }
+            head--;
         }
     }
-    if(value[head] != '^'){ //jeżeli znalazł potęgowanie nie w nawiasie
-        Node* newNode = new Twoarg_op(value.substr(head, head+1), value.substr( 0, head), value.substr(head+1));
-        delete this;
-        newNode->parse(calc);
-        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora plus/minus
+    head--;
+
+    if(value[head] == '^'){ //jeżeli znalazł potęgowanie nie w nawiasie
+        Node* newNode = new Twoarg_op(value.substr(head, 1), value.substr( 0, head), value.substr(head+1));
+
+        newNode = newNode->parse(calc);
+        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora potęgowania
     }
-
-
 
     //if all else fails - stwórz z siebie Argument
     Node* newNode = new Argument( atof( value.c_str() ));
-    delete this;
     return newNode;
 }
