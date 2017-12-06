@@ -21,8 +21,9 @@ Twoarg_op::~Twoarg_op(){
     delete &arg_right;
 }
 
-void Twoarg_op::print(){
-    arg_left->print();
+void Twoarg_op::print(int depth){
+    arg_left->print(depth+1);
+    for(int i=0; i<depth; i++) cout << "|";
     switch(type){
         case PLUS: cout << "+\n"; break;
         case MINUS: cout << "-\n"; break;
@@ -30,16 +31,19 @@ void Twoarg_op::print(){
         case DIVIDE: cout << "/\n"; break;
         case POWER: cout << "^\n"; break;
     }
-    arg_right->print();
+    arg_right->print(depth+1);
 }
 
 Node* Twoarg_op::parse(Calculator* calc){
-    Node* temp = arg_left;
-    arg_left = temp->parse(calc);
-    delete temp;
-    temp = arg_right;
-    arg_right = temp->parse(calc);
-    delete temp;
+    Node* temp = arg_left->parse(calc);
+    delete arg_left;
+    if (temp == NULL) return NULL;
+    else arg_left = temp;
+    
+    temp = arg_right->parse(calc);
+    delete arg_right;
+    if (temp == NULL) return NULL;
+    else arg_right = temp;
     return this;
 }
 

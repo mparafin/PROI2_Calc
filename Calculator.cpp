@@ -28,7 +28,7 @@ void Calculator::memoryClear(){ defined_variables.clear(); }
 void Calculator::print(){
     for(int i=0; i < defined_variables.size(); i++){
         cout << defined_variables[i].name << " = ";
-        defined_variables[i].definition.print();
+        defined_variables[i].definition.print(0);
         cout << endl;
     }
 }

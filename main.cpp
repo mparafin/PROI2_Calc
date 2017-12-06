@@ -14,7 +14,10 @@ int main(){
     mainCalc.defineVariable("b", "a+5");
     Expression testExpression(buffer);
     Node* testTree = testExpression.parse(&mainCalc);
-    //testTree->print();
-    cout << "Wynik: " << testTree->calculate() << endl;
+    if (testTree == NULL) cout << "ABANDON SHIP\n";
+    else {
+        testTree->print(0);
+        cout << "Wynik: " << testTree->calculate() << endl;
+    }
     return 0;
 }

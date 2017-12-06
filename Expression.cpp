@@ -11,7 +11,8 @@ using namespace std;
 
 Expression::Expression(string input): value(input){};
 
-void Expression::print(){
+void Expression::print(int depth){
+    for(int i=0; i<depth; i++) cout << "|";
     cout << this->value << endl;
 }
 
@@ -50,7 +51,7 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
             continue;
         }
         if(value[found] == 'l' && value[found+1] == 'o' && value[found+2] == 'g' && value[found+3] == '('){
-            found = value.find_first_not_of("123456789. +-*^/!()", found+3);
+            found = value.find_first_not_of("1234567890. +-*^/!()", found+3);
             continue;
         }
         break;
@@ -59,7 +60,7 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
     else return 1;    
 }
 
-void Expression::dropBorders() { //opuść skrajne nawiasy i usuń spacje, jeśli są
+int Expression::dropBorders() { //opuść skrajne nawiasy i usuń spacje, jeśli są
     
     //usunięcie spacji:
     string::iterator i = value.begin();
@@ -69,55 +70,67 @@ void Expression::dropBorders() { //opuść skrajne nawiasy i usuń spacje, jeśl
     }
 
     //usunięcie skrajnych nawiasów:
-    if( *(value.begin()) != '(' ) return; //sukces, jeżeli nie zaczyna się od nawiasu
-    else
-    {
-        int bracketDepth = 1;
-         i = value.begin()+1;
-        while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
-            if( *i == '(' ) bracketDepth++;
-            if( *i == ')' ) bracketDepth--;
-            i++;
-        }
-        if(i-1 == value.end()-1) { //jeżeli zamknięcie pierwszego to ostatni znak, usuń skrajne znaki
+    
+    int bracketDepth = 0;
+    i = value.begin()-1;
+    while(i != value.end()){ //licz nawiasy aż nie zamkniesz pierwszego
+        i++;
+        if( *i == '(' ) bracketDepth++;
+        if( *i == ')' ) bracketDepth--;
+    }
+    if(bracketDepth > 0) return 2; // za mało nawiasów
+    if(bracketDepth < 0) return 1; // za dużo nawiasów
+
+    else { 
+        if( *(value.begin()) == '(' && *(value.end()-1) == ')' ){ //jeżeli pierwszy i ostatni znak to nawiasy, usuń skrajne znaki
             value.erase( value.begin() );
             value.erase( value.end()-1 );
             dropBorders(); //na wypadek gdyby był przypadek "((...))"
         }
-        else return;
+        return 0;
     }
+    
 }
 
 Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
 
     //Przygotowanie stringa
-    if(devariablize(calc) == 1 ) { //podstawienie wyrażeń za zmienne
+    if(devariablize(calc) == 1 ) { //podstawienie wyrażeń za zmienne i kontrola składni
         cout << "Syntax error!" << endl;
         return NULL;
     }
-    dropBorders(); // usunięcie skrajnych nawiasów i spacji
-
+    switch(dropBorders()){ // usunięcie skrajnych nawiasów i spacji
+        case 1:
+            cout << "Too many brackets!\n";
+            return NULL;
+            break;
+        case 2:
+            cout << "Too little brackets!\n";
+            return NULL;
+            break;
+    }
     //W tym momencie mamy czyste wyrażenie do parsowania
 
     int head = 0;
+            //cout << "huh?\n";
 
     //szukaj plusa/minusa aż znajdziesz lub skończy się value:
-    for (head=0; head < value.size(); head++) {
+    for (head=value.size(); head > -1; head--) {
 
-        if (value[head] == '+' || value[head] == '-') { head++; break;}
+        if (value[head] == '+' || value[head] == '-') { head--; break;}
 
-        if(value[head] == '('){ //pominięcie nawiasów
+        if(value[head] == ')'){ //pominięcie nawiasów
             int bracketDepth = 1;
-            head++;
-            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
-                if( value[head] == '(' ) bracketDepth++;
-                if( value[head] == ')' ) bracketDepth--;
-                head++;
-            }
             head--;
+            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+                if( value[head] == ')' ) bracketDepth++;
+                if( value[head] == '(' ) bracketDepth--;
+                head--;
+            }
+            head++;
         }
     }
-    head--;
+    head++;
 
     if(value[head] == '+' || value[head] == '-'){ //jeżeli znalazł plusa/minusa nie w nawiasie
 
@@ -127,22 +140,22 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
     }
 
     //szukaj mnożenia/dzielenia aż znajdziesz lub skończy się value:
-    for (head=0; head < value.size(); head++) {
+    for (head=value.size(); head > -1; head--) {
 
-        if (value[head] == '*' || value[head] == '/') { head++; break;}
+        if (value[head] == '*' || value[head] == '/') { head--; break;}
 
-        if(value[head] == '('){ //pominięcie nawiasów
+        if(value[head] == ')'){ //pominięcie nawiasów
             int bracketDepth = 1;
-            head++;
-            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
-                if( value[head] == '(' ) bracketDepth++;
-                if( value[head] == ')' ) bracketDepth--;
-                head++;
-            }
             head--;
+            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+                if( value[head] == ')' ) bracketDepth++;
+                if( value[head] == '(' ) bracketDepth--;
+                head--;
+            }
+            head++;
         }
     }
-    head--;
+    head++;
 
     if(value[head] == '*' || value[head] == '/'){ //jeżeli znalazł mnożenie/dzielenie nie w nawiasie
         Node* newNode = new Twoarg_op(value.substr(head, 1), value.substr( 0, head), value.substr(head+1));
@@ -153,22 +166,22 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
 
 
     //szukaj potęgowania aż znajdziesz lub skończy się value:
-    for (head=0; head < value.size(); head++) {
+    for (head=value.size(); head > -1; head--) {
 
-        if (value[head] == '^') { head++; break;}
+        if (value[head] == '^') { head--; break;}
 
-        if(value[head] == '('){ //pominięcie nawiasów
+        if(value[head] == ')'){ //pominięcie nawiasów
             int bracketDepth = 1;
-            head++;
-            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
-                if( value[head] == '(' ) bracketDepth++;
-                if( value[head] == ')' ) bracketDepth--;
-                head++;
-            }
             head--;
+            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+                if( value[head] == ')' ) bracketDepth++;
+                if( value[head] == '(' ) bracketDepth--;
+                head--;
+            }
+            head++;
         }
     }
-    head--;
+    head++;
 
     if(value[head] == '^'){ //jeżeli znalazł potęgowanie nie w nawiasie
         Node* newNode = new Twoarg_op(value.substr(head, 1), value.substr( 0, head), value.substr(head+1));
@@ -176,6 +189,33 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
         newNode = newNode->parse(calc);
         return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora potęgowania
     }
+
+
+    //szukaj wyrażenia log()
+    for (head=value.size(); head > -1; head--) {
+
+        if (value[head] == 'l' && value[head+1] == 'o' && value[head+2] == 'g' && value[head+3] == '(') { head--; break;}
+
+        if(value[head] == ')'){ //pominięcie nawiasów
+            int bracketDepth = 1;
+            head--;
+            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+                if( value[head] == ')' ) bracketDepth++;
+                if( value[head] == '(' ) bracketDepth--;
+                head--;
+            }
+            head++;
+        }
+    }
+    head++;
+
+    if (value[head] == 'l' && value[head+1] == 'o' && value[head+2] == 'g' && value[head+3] == '(') {
+            Node* newNode = new Onearg_op(value.substr(head, 3), value.substr(head+3));
+
+        newNode = newNode->parse(calc);
+        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora potęgowania
+    }
+
 
     //if all else fails - stwórz z siebie Argument
     Node* newNode = new Argument( atof( value.c_str() ));

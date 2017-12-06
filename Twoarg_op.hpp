@@ -11,7 +11,7 @@ class Twoarg_op: public Operation{
     public:
         Twoarg_op(std::string type_indicator, std::string left_arg, std::string right_arg);
         ~Twoarg_op();
-        void print();
+        void print(int);
         Node* parse(Calculator*);
         double calculate();
 };

@@ -8,9 +8,10 @@ class Onearg_op: public Operation{
     private:
         Node *arg;
     public:
-        Onearg_op(std::string&, std::string&);
+        Onearg_op(std::string, std::string);
         ~Onearg_op();
-        void print();
+        void print(int);
+        Node* parse(Calculator*);
         double calculate();
 };
 

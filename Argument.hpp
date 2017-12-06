@@ -8,7 +8,7 @@ class Argument: public Node{
         double value;
     public:
         Argument(double);
-        void print();
+        void print(int);
         Node* parse(Calculator*);
         double calculate();
 };

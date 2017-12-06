@@ -11,13 +11,13 @@ class Expression: public Node{
         std::string value;
     public:
         Expression(std::string);
-        void print(); //wypisuje string value na ekran
+        void print(int); //wypisuje string value na ekran
         std::string getValue(); //zwraca value w postaci czystego stringa
         double calculate(); //pusta funkcja, Expression nigdy nie będzie występować w finalnym drzewie
         Node* parse(Calculator*); //interpretuje string value i tworzy poddrzewo tego wyrażenia
 
         int devariablize(Calculator*); //podmienia zmienne na wyrażenia, które je opisują
-        void dropBorders(); //usuwa skrajne nawiasy, jeżeli całe wyrażenie jest w nawiasie
+        int dropBorders(); //usuwa skrajne nawiasy, jeżeli całe wyrażenie jest w nawiasie
 };
 
 #endif

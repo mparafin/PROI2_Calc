@@ -3,14 +3,15 @@
 #include <iostream>
 #include <cmath>
 
-Onearg_op::Onearg_op(std::string& type_indicator, std::string& argument){
+using namespace std;
+
+Onearg_op::Onearg_op(string type_indicator, string argument){
     if(type_indicator == "-") type = MINUS;
     else if(type_indicator == "exp") type = EXP;
     else if(type_indicator == "ln") type = LN;
     else if(type_indicator == "log") type = LOG;
     else if(type_indicator == "!") type = STRONG;
-    Expression* temp = new Expression(argument);
-    arg = temp->parse();
+    arg = new Expression(argument);
 }
 
 Onearg_op::~Onearg_op(){
@@ -18,16 +19,25 @@ Onearg_op::~Onearg_op(){
     delete &arg;
 }
 
-void Onearg_op::print(){
+void Onearg_op::print(int depth){
+    for(int i=0; i<depth; i++) cout << "|";
     switch(type){
-        case MINUS: std::cout << "-\n(\n"; break;
-        case EXP: std::cout << "exp\n(\n"; break;
-        case LN: std::cout << "ln\n(\n)"; break;
-        case LOG: std::cout << "log\n(\n)"; break;
-        case STRONG: std::cout << "!\n(\n)"; break;
+        case MINUS: cout << "-(\n"; for(int i=0; i<depth; i++) cout << "|"; cout << "(\n"; break;
+        case EXP: cout << "exp(\n"; for(int i=0; i<depth; i++) cout << "|"; cout << "(\n"; break;
+        case LN: cout << "ln\n"; for(int i=0; i<depth; i++) cout << "|"; cout << "(\n"; break;
+        case LOG: cout << "log\n"; for(int i=0; i<depth; i++) cout << "|"; cout << "(\n"; break;
+        case STRONG: cout << "!\n"; for(int i=0; i<depth; i++) cout << "|"; cout << "(\n"; break;
     }
-    arg->print();
-    std::cout << ")";
+    arg->print(depth+1);
+    for(int i=0; i<depth; i++) cout << "|";
+    cout << ")\n" << endl;
+}
+
+Node* Onearg_op::parse(Calculator* calc){
+    Node* temp = arg;
+    arg = temp->parse(calc);
+    delete temp;
+    return this;
 }
 
 
@@ -39,8 +49,8 @@ double Onearg_op::calculate(){
         case LOG: return log10(arg->calculate());
         case STRONG:
             double k = arg->calculate();
-            if (std::floor(std::abs(k)) != std::abs(k)){
-                std::cout << "ERROR: argument of \"strong\" not integer\n";
+            if (floor(abs(k)) != abs(k)){
+                cout << "ERROR: argument of \"strong\" not integer\n";
                 return 0;
             }
             else{
