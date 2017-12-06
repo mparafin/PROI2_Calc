@@ -213,6 +213,85 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
             Node* newNode = new Onearg_op(value.substr(head, 3), value.substr(head+3));
 
         newNode = newNode->parse(calc);
+        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora log()
+    }
+
+
+    //szukaj wyrażenia ln()
+    for (head=value.size(); head > -1; head--) {
+
+        if (value[head] == 'l' && value[head+1] == 'n' && value[head+2] == '(') { head--; break;}
+
+        if(value[head] == ')'){ //pominięcie nawiasów
+            int bracketDepth = 1;
+            head--;
+            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+                if( value[head] == ')' ) bracketDepth++;
+                if( value[head] == '(' ) bracketDepth--;
+                head--;
+            }
+            head++;
+        }
+    }
+    head++;
+
+    if (value[head] == 'l' && value[head+1] == 'n' && value[head+2] == '(' ) {
+            Node* newNode = new Onearg_op(value.substr(head, 2), value.substr(head+2));
+
+        newNode = newNode->parse(calc);
+        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora ln()
+    }
+
+
+
+    //szukaj wyrażenia exp()
+    for (head=value.size(); head > -1; head--) {
+
+        if (value[head] == 'e' && value[head+1] == 'x' && value[head+2] == 'p' && value[head+3] == '(') { head--; break;}
+
+        if(value[head] == ')'){ //pominięcie nawiasów
+            int bracketDepth = 1;
+            head--;
+            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+                if( value[head] == ')' ) bracketDepth++;
+                if( value[head] == '(' ) bracketDepth--;
+                head--;
+            }
+            head++;
+        }
+    }
+    head++;
+
+    if (value[head] == 'e' && value[head+1] == 'x' && value[head+2] == 'p' && value[head+3] == '(') {
+            Node* newNode = new Onearg_op(value.substr(head, 3), value.substr(head+3));
+
+        newNode = newNode->parse(calc);
+        return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora log()
+    }
+
+
+    //szukaj silni aż znajdziesz lub skończy się value:
+    for (head=value.size(); head > -1; head--) {
+
+        if (value[head] == '!') { head--; break;}
+
+        if(value[head] == ')'){ //pominięcie nawiasów
+            int bracketDepth = 1;
+            head--;
+            while(bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+                if( value[head] == ')' ) bracketDepth++;
+                if( value[head] == '(' ) bracketDepth--;
+                head--;
+            }
+            head++;
+        }
+    }
+    head++;
+
+    if(value[head] == '!'){ //jeżeli znalazł potęgowanie nie w nawiasie
+        Node* newNode = new Onearg_op(value.substr(head, 1), value.substr( 0, head) );
+
+        newNode = newNode->parse(calc);
         return newNode; // zwróć wskaźnik do nowego poddrzewa zaczynającego się od operatora potęgowania
     }
 

@@ -35,10 +35,10 @@ void Twoarg_op::print(int depth){
 }
 
 Node* Twoarg_op::parse(Calculator* calc){
-    Node* temp = arg_left->parse(calc);
-    delete arg_left;
-    if (temp == NULL) return NULL;
-    else arg_left = temp;
+    Node* temp = arg_left->parse(calc); //temp jest wskaźnikiem na nowe poddrzewo
+    delete arg_left; //usuń Expression, które zostało już sparsowane
+    if (temp == NULL) return NULL; //w przypadku błędu zwróć błąd
+    else arg_left = temp; //jeżeli nie ma błędu, przypisz nowe poddrzewo na miejsce
     
     temp = arg_right->parse(calc);
     delete arg_right;

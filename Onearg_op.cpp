@@ -30,14 +30,14 @@ void Onearg_op::print(int depth){
     }
     arg->print(depth+1);
     for(int i=0; i<depth; i++) cout << "|";
-    cout << ")\n" << endl;
+    cout << ")" << endl;
 }
 
 Node* Onearg_op::parse(Calculator* calc){
-    Node* temp = arg;
-    arg = temp->parse(calc);
-    delete temp;
-    return this;
+    Node* temp = arg->parse(calc); //temp jest wskaźnikiem na nowe poddrzewo
+    delete arg; //usuń Expression, które zostało już sparsowane
+    if (temp == NULL) return NULL; //w przypadku błędu zwróć błąd
+    else arg = temp; //jeżeli nie ma błędu, przypisz nowe poddrzewo na miejsce
 }
 
 
@@ -50,14 +50,12 @@ double Onearg_op::calculate(){
         case STRONG:
             double k = arg->calculate();
             if (floor(abs(k)) != abs(k)){
-                cout << "ERROR: argument of \"strong\" not integer\n";
-                return 0;
+                cout << "ERROR: argument of \"strong\" not integer\n - assuming floor of argument";
+                k = floor(k);
             }
-            else{
                 int n=1;
-                for(int i=1; i<k; i++) n *= i;
+                for(int i=1; i<=k; i++) n *= i;
                 return n;
-            }
             break;
     }
 }
