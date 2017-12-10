@@ -47,10 +47,11 @@ double Onearg_op::calculate(){
         case EXP: return exp(arg->calculate());
         case LN: return log(arg->calculate());
         case LOG: return log10(arg->calculate());
-        case STRONG:
+        case STRONG: //obliczanie silni na podstawie argumentu (dla ujemnych argumentów zwraca 1)
             double k = arg->calculate();
+            if (k<0) cout << "WARNING: argument of \"strong\" is negative - \"strong\" will return 1\n";
             if (floor(abs(k)) != abs(k)){
-                cout << "ERROR: argument of \"strong\" not integer\n - assuming floor of argument";
+                cout << "ERROR: argument of \"strong\" not integer - assuming floor of argument (" << k << "): " << floor(k) << endl;
                 k = floor(k);
             }
                 int n=1;
