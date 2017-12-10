@@ -22,9 +22,9 @@ double Expression::calculate(){}
 
 int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyrażenia
     /* Funkcja podmienia zmienne danego kalkulatora znajdujące się w wyrażeniu na ich definicje, dopóki nie znajdzie już żadnej zdefiniowanej zmiennej.
-    *Funkcja zwraca 0 jeśli operacja zakończyła się powodzeniem.
-    *
-    */
+    *Funkcja zwraca 0 jeśli operacja zakończyła się powodzeniem, 1 jeśli coś jest nie tak.*/
+
+
     vector<Variable> definedVariables = calc->getDefinedVariables();
     int emptyRuns = 0;
     while(emptyRuns != definedVariables.size() ){ //próbuj podmienić wszystkie zmienne tyle razy, aż żadna nie zostanie znaleziona
@@ -44,20 +44,21 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
     if(found == string::npos) return 0; //sukces jeśli brak zmiennych na samym początku
 
     while(1){ //pętla testująca czy znaleziony znak nie jest funkcją jednoargumentową (exp, ln, log)
-        if(value[found] == 'e' && value[found+1] == 'x' && value[found+2] == 'p' && value[found+3] == '(') {
+        if(found != string::npos && found == value.find("exp(") ){
             found = value.find_first_not_of("1234567890. +-*^/!()", found+3);
             continue;
         }
-        if(value[found] == 'l' && value[found+1] == 'n' && value[found+2] == '('){
+        if(found != string::npos && found == value.find("ln(") ){
             found = value.find_first_not_of("1234567890. +-*^/!()", found+2);
             continue;
         }
-        if(value[found] == 'l' && value[found+1] == 'o' && value[found+2] == 'g' && value[found+3] == '('){
-            found = value.find_first_not_of("1234567890. +-*^/!()", found+3);
+        if(found != string::npos && found == value.find("log(") ){
+            found = value.find_first_not_of("1234567890. +-*^/!()", (found+3) );
             continue;
         }
         break;
     }
+    
     if(found == string::npos) return 0; //sukces jeśli brak zmiennych po uwzględnieniu funkcji
     else return 1;    
 
@@ -114,16 +115,16 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
 
     //Przygotowanie stringa
     if(devariablize(calc) == 1 ) { //podstawienie wyrażeń za zmienne i kontrola składni
-        cout << "Parser syntax error!" << endl;
+        cout << "Error: parser syntax error - check for typos" << endl;
         return NULL;
     }
     switch(dropBorders()){ // usunięcie skrajnych nawiasów i spacji
         case 1:
-            cout << "Too many brackets!\n";
+            cout << "Error: too many brackets\n";
             return NULL;
             break;
         case 2:
-            cout << "Too little brackets!\n";
+            cout << "Error: too little brackets\n";
             return NULL;
             break;
     }
@@ -317,7 +318,7 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
 
     //if all else fails - stwórz z siebie Argument
     if (value.find_first_not_of("1234567890") != string::npos){
-        cout << "Interpreter syntax error!" << endl;
+        cout << "Error: interpreter syntax error - check mathematical validity" << endl;
         return NULL;
     }
     else {
