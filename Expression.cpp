@@ -31,7 +31,7 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
         emptyRuns = 0;
         for(int i=0; i < definedVariables.size(); i++) {
             size_t position = value.find(definedVariables[i].name); //position = początek nazwy zmiennej
-            if(position != string::npos) value.replace( position, definedVariables[i].name.length(), "(" + definedVariables[i].definition.value + ")"); //podmień nazwę na definicję
+            if(position != string::npos && !isalnum( value[ (position + definedVariables[i].name.length()) ] ) ) value.replace( position, definedVariables[i].name.length(), "(" + definedVariables[i].definition.value + ")"); //podmień nazwę na definicję
             else emptyRuns++;
         }
     }
@@ -58,6 +58,8 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
     }
     if(found == string::npos) return 0; //sukces jeśli brak zmiennych po uwzględnieniu funkcji
     else return 1;    
+
+
 }
 
 int Expression::dropBorders() { //opuść skrajne nawiasy i usuń spacje, jeśli są
@@ -96,7 +98,7 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
 
     //Przygotowanie stringa
     if(devariablize(calc) == 1 ) { //podstawienie wyrażeń za zmienne i kontrola składni
-        cout << "Syntax error!" << endl;
+        cout << "Parser syntax error!" << endl;
         return NULL;
     }
     switch(dropBorders()){ // usunięcie skrajnych nawiasów i spacji
@@ -297,6 +299,12 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
 
 
     //if all else fails - stwórz z siebie Argument
-    Node* newNode = new Argument( atof( value.c_str() ));
-    return newNode;
+    if (value.find_first_not_of("1234567890") != string::npos){
+        cout << "Interpreter syntax error!" << endl;
+        return NULL;
+    }
+    else {
+        Node* newNode = new Argument( atof( value.c_str() ));
+        return newNode;
+    }
 }
