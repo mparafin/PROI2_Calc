@@ -31,7 +31,9 @@ int Expression::devariablize(Calculator* calc){ //podmienienie zmiennych na wyra
         emptyRuns = 0;
         for(int i=0; i < definedVariables.size(); i++) {
             size_t position = value.find(definedVariables[i].name); //position = początek nazwy zmiennej
-            if(position != string::npos && !isalnum( value[ (position + definedVariables[i].name.length()) ] ) ) value.replace( position, definedVariables[i].name.length(), "(" + definedVariables[i].definition.value + ")"); //podmień nazwę na definicję
+            if(position != string::npos && !isalnum( value[ (position + definedVariables[i].name.length()) ] ) && value[ (position + definedVariables[i].name.length()) ] != '_' ){
+                value.replace( position, definedVariables[i].name.length(), "(" + definedVariables[i].definition.value + ")"); //podmień nazwę na definicję
+            }
             else emptyRuns++;
         }
     }
@@ -71,20 +73,34 @@ int Expression::dropBorders() { //opuść skrajne nawiasy i usuń spacje, jeśli
         i++;
     }
 
-    //usunięcie skrajnych nawiasów:
-    
+    //kontrola nawiasów:
+
     int bracketDepth = 0;
     i = value.begin()-1;
-    while(i != value.end()){ //licz nawiasy aż nie zamkniesz pierwszego
+    while( i != value.end()-1 ){
         i++;
-        if( *i == '(' ) bracketDepth++;
+        if (*i == '(') bracketDepth++;
+        if (*i == ')') bracketDepth--;
+    }
+
+    if (bracketDepth < 0) return 1; // za dużo nawiasów
+
+    
+    bracketDepth = -1;
+    i = value.begin()-1;
+    while(i != value.end()-1 && bracketDepth != 0){ //licz nawiasy aż nie zamkniesz pierwszego
+        i++;
+        //cout << "*i: " << *i << ", bracketDepth = " << bracketDepth << ", i.base(): " << i.base() << endl;
+        if( *i == '(' ){
+            if(bracketDepth == -1) bracketDepth = 1;
+            else bracketDepth++;
+        }
         if( *i == ')' ) bracketDepth--;
     }
-    if(bracketDepth > 0) return 2; // za mało nawiasów
-    if(bracketDepth < 0) return 1; // za dużo nawiasów
+    if(i == value.end()-1 && bracketDepth > 0) return 2; // za mało nawiasów
 
     else { 
-        if( *(value.begin()) == '(' && *(value.end()-1) == ')' ){ //jeżeli pierwszy i ostatni znak to nawiasy, usuń skrajne znaki
+        if(i == value.end()-1 && *(value.begin()) == '(' && *(value.end()-1) == ')' ){ //jeżeli pierwszy i ostatni znak to nawiasy, usuń skrajne znaki
             value.erase( value.begin() );
             value.erase( value.end()-1 );
             dropBorders(); //na wypadek gdyby był przypadek "((...))"
@@ -111,6 +127,7 @@ Node* Expression::parse(Calculator *calc){ //GŁÓWNA FUNCKJA TEGO PROGRAMU
             return NULL;
             break;
     }
+
     //W tym momencie mamy czyste wyrażenie do parsowania
 
     int head = 0;
