@@ -3,6 +3,7 @@
 #include "Expression.hpp"
 #include <iostream>
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -40,4 +41,19 @@ void Calculator::calculate(){
         temp = defined_variables[i].definition.parse(this);
         cout << temp->calculate() << endl;
     }
+}
+
+void Calculator::interface(){
+    string buffer, key, value;
+    cout << "Podaj input:\n";
+    getline(cin, buffer);
+
+    if(buffer.find("=") == string::npos) { //oblicz pojedyncze wyrażenie
+        Expression currentExpression(buffer);
+        Node* currentCalculationTree = currentExpression.parse(this);
+        if(currentCalculationTree == NULL)  cout << "ABANDON SHIP\n";
+        else cout << "Wynik: " << currentCalculationTree->calculate() << endl;
+        return;
+    }
+    
 }
