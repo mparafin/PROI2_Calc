@@ -43,8 +43,7 @@ void Calculator::print(){
 void Calculator::calculateSingleExpression(string input){ //oblicz pojedyncze wyrażenie
     Expression currentExpression(input);
     Node* currentCalculationTree = currentExpression.parse(this);
-    if(currentCalculationTree == NULL)  cout << "ABANDON SHIP\n";
-    else cout << "Result: " << currentCalculationTree->calculate() << endl;
+    if(currentCalculationTree != NULL) cout << "Result: " << currentCalculationTree->calculate() << endl;
     return;
 }
 
