@@ -44,7 +44,7 @@ void Calculator::calculateSingleExpression(string input){ //oblicz pojedyncze wy
     Expression currentExpression(input);
     Node* currentCalculationTree = currentExpression.parse(this);
     if(currentCalculationTree != NULL) {
-        currentCalculationTree->print();
+        currentCalculationTree->print(0);
         cout << "Result: " << currentCalculationTree->calculate() << endl;
     }
     return;
